@@ -1,4 +1,6 @@
-import { createContext, useState, useEffect, useReducer } from 'react';
+import { createContext, useEffect, useReducer } from 'react';
+
+import { createAction } from '../utils/reducer/reducer.utils';
 
 import {
   onAuthStateChangedListener,
@@ -11,8 +13,12 @@ export const UserContext = createContext({
   setCurrentUser: () => null,
 });
 
-export const USER_ACTION_TYPES = {
+const USER_ACTION_TYPES = {
   SET_CURRENT_USER: 'SET_CURRENT_USER',
+};
+
+const INITIAL_STATE = {
+  currentUser: null,
 };
 
 const userReducer = (state, action) => {
@@ -25,12 +31,8 @@ const userReducer = (state, action) => {
         currentUser: payload,
       };
     default:
-      return new Error(`Unhandled type ${type} in userReducer`);
+      throw new Error(`Unhandled type of ${type} in userReducer`);
   }
-};
-
-const INITIAL_STATE = {
-  currentUser: null,
 };
 
 export const UserProvider = ({ children }) => {
@@ -38,8 +40,9 @@ export const UserProvider = ({ children }) => {
   const [{ currentUser }, dispatch] = useReducer(userReducer, INITIAL_STATE);
 
   // const { currentUser } = state;
+
   const setCurrentUser = (user) => {
-    dispatch({ type: USER_ACTION_TYPES.SET_CURRENT_USER, payload: user });
+    dispatch(createAction(USER_ACTION_TYPES.SET_CURRENT_USER, user));
   };
 
   const value = { currentUser, setCurrentUser };
