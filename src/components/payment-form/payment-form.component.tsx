@@ -13,6 +13,7 @@ import {
   FormContainer,
   PaymentButton,
 } from './payment-form.styles';
+import { useNavigate } from 'react-router-dom';
 
 const ifValidCardElement = (
   card: StripeCardElement | null
@@ -23,10 +24,15 @@ const PaymentForm = () => {
   const elements = useElements();
   const amount = useSelector(selectCartTotal);
   const currentUser = useSelector(selectCurrentUser);
+  const navigate = useNavigate();
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const paymentHandler = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!currentUser) {
+      navigate('/auth');
+    }
 
     if (!stripe || !elements) {
       return;

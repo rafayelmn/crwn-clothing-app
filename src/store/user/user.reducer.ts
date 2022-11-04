@@ -24,17 +24,11 @@ const INITIAL_STATE: UserState = {
 
 export const userReducer = (state = INITIAL_STATE, action: AnyAction) => {
   if (signInSuccess.match(action)) {
-    return {
-      ...state,
-      currentUser: action.payload,
-    };
+    return { ...state, currentUser: action.payload };
   }
 
   if (signOutSuccess.match(action)) {
-    return {
-      ...state,
-      currentUser: null,
-    };
+    return { ...state, currentUser: null };
   }
 
   if (
@@ -42,10 +36,7 @@ export const userReducer = (state = INITIAL_STATE, action: AnyAction) => {
     signUpFailed.match(action) ||
     signOutFailed.match(action)
   ) {
-    return {
-      ...state,
-      error: action.payload,
-    };
+    return { ...state, error: action.payload };
   }
 
   return state;

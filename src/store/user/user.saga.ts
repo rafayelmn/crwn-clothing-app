@@ -1,4 +1,4 @@
-import { takeLatest, all, call, put } from 'typed-redux-saga/macro';
+import { takeLatest, put, all, call } from 'typed-redux-saga/macro';
 import { User } from 'firebase/auth';
 
 import { USER_ACTION_TYPES } from './user.types';

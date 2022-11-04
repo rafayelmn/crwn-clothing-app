@@ -9,12 +9,15 @@ import { Routes, Route } from 'react-router-dom';
 //   getCurrentUser,
 // } from './utils/firebase/firebase.utils';
 
+import RequireAuth from './components/requireAuth/reqire-auth.component';
 import Spinner from './components/spinner/spinner.component';
 
 import {
   // setCurrentUser
   checkUserSession,
 } from './store/user/user.action';
+
+import Profile from './routes/user-profile/user-profile.component';
 
 const Navigation = lazy(() =>
   import('./routes/navigation/navigation.component')
@@ -47,6 +50,9 @@ const App = () => {
         <Route path='/' element={<Navigation />}>
           <Route index element={<Home />} />
           <Route path='shop/*' element={<Shop />} />
+          <Route element={<RequireAuth />}>
+            <Route path='profile' element={<Profile />} />
+          </Route>
           <Route path='auth' element={<Authentication />} />
           <Route path='checkout' element={<Checkout />} />
         </Route>
