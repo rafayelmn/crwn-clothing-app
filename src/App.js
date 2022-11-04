@@ -17,7 +17,9 @@ import {
   checkUserSession,
 } from './store/user/user.action';
 
-import Profile from './routes/user-profile/user-profile.component';
+const Profile = lazy(() =>
+  import('./routes/user-profile/user-profile.component')
+);
 
 const Navigation = lazy(() =>
   import('./routes/navigation/navigation.component')
