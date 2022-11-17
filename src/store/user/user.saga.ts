@@ -1,5 +1,5 @@
 import { takeLatest, put, all, call } from 'typed-redux-saga/macro';
-import { User } from 'firebase/auth';
+import { User, AuthError, AuthErrorCodes } from 'firebase/auth';
 
 import { USER_ACTION_TYPES } from './user.types';
 
@@ -13,6 +13,12 @@ import {
   EmailSignInStart,
   SignUpStart,
   SignUpSuccess,
+  // UpdateUserEmailStart,
+  // updateUserEmailSuccess,
+  // updateUserEmailFailed,
+  UpdateUserPasswordStart,
+  updateUserPasswordSuccess,
+  updateUserPasswordFailed,
 } from './user.action';
 
 import {
@@ -23,6 +29,8 @@ import {
   createAuthUserWithEmailAndPassword,
   signOutUser,
   AdditionalInformation,
+  // updateUserEmail,
+  updateUserPassword,
 } from '../../utils/firebase/firebase.utils';
 
 export function* getSnapshotFromUserAuth(
@@ -70,6 +78,16 @@ export function* signInWithEmail({
       yield* call(getSnapshotFromUserAuth, user);
     }
   } catch (error) {
+    switch ((error as AuthError).code) {
+      case AuthErrorCodes.INVALID_PASSWORD:
+        alert('incorrect password for email');
+        break;
+      case AuthErrorCodes.USER_DELETED:
+        alert('no user associated with this email');
+        break;
+      default:
+        console.log(error);
+    }
     yield* put(signInFailed(error as Error));
   }
 }
@@ -99,6 +117,11 @@ export function* signUp({
       yield* put(signUpSuccess(user, { displayName }));
     }
   } catch (error) {
+    if ((error as AuthError).code === AuthErrorCodes.EMAIL_EXISTS) {
+      alert('Cannot create user, email already in use');
+    } else {
+      console.log('user creation encountered an error', error);
+    }
     yield* put(signUpFailed(error as Error));
   }
 }
@@ -116,6 +139,32 @@ export function* signInAfterSignUp({
   payload: { user, additionalDetails },
 }: SignUpSuccess) {
   yield* call(getSnapshotFromUserAuth, user, additionalDetails);
+}
+
+// export function* updateCurrentUserEmail({
+//   payload: { email },
+// }: UpdateUserEmailStart) {
+//   try {
+//     const userAuth = yield* call(getCurrentUser);
+//     if (!userAuth) return;
+//     yield* call(updateUserEmail, userAuth, email);
+//     yield* put(updateUserEmailSuccess(email));
+//   } catch (error) {
+//     yield* put(updateUserEmailFailed(error as Error));
+//   }
+// }
+
+export function* updateCurrentUserPassword({
+  payload: { password },
+}: UpdateUserPasswordStart) {
+  try {
+    const userAuth = yield* call(getCurrentUser);
+    if (!userAuth) return;
+    yield* call(updateUserPassword, userAuth, password);
+    yield* put(updateUserPasswordSuccess());
+  } catch (error) {
+    yield* put(updateUserPasswordFailed(error as Error));
+  }
 }
 
 export function* onGoogleSignInStart() {
@@ -142,6 +191,20 @@ export function* onSignOutStart() {
   yield* takeLatest(USER_ACTION_TYPES.SIGN_OUT_START, signOut);
 }
 
+// export function* onUpdateEmailStart() {
+//   yield* takeLatest(
+//     USER_ACTION_TYPES.UPDATE_EMAIL_START,
+//     updateCurrentUserEmail
+//   );
+// }
+
+export function* onUpdatePasswordStart() {
+  yield* takeLatest(
+    USER_ACTION_TYPES.UPDATE_PASSWORD_START,
+    updateCurrentUserPassword
+  );
+}
+
 export function* userSagas() {
   yield* all([
     call(onCheckUserSession),
@@ -150,5 +213,7 @@ export function* userSagas() {
     call(onSignUpStart),
     call(onSignUpSuccess),
     call(onSignOutStart),
+    // call(onUpdateEmailStart),
+    call(onUpdatePasswordStart),
   ]);
 }

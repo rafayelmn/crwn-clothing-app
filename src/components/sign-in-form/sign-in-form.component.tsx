@@ -1,7 +1,6 @@
-import { FormEvent, ChangeEvent, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { AuthError, AuthErrorCodes } from 'firebase/auth';
-import useAuth from '../../hooks/useAuth';
+import { FormEvent, ChangeEvent, useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import FormInput from '../form-input/form-input.component';
 import Button, { BUTTON_TYPE_CLASSES } from '../button/button.component';
@@ -11,7 +10,7 @@ import {
   googleSignInStart,
   emailSignInStart,
 } from '../../store/user/user.action';
-import { useNavigate } from 'react-router-dom';
+import { selectCurrentUser } from '../../store/user/user.selector';
 
 const defaultFormFields = {
   email: '',
@@ -22,10 +21,14 @@ const SignInForm = () => {
   const dispatch = useDispatch();
   const [formFields, setFormFields] = useState(defaultFormFields);
   const { email, password } = formFields;
-  const currentUser = useAuth();
+  const currentUser = useSelector(selectCurrentUser);
   const navigate = useNavigate();
 
-  if (currentUser) navigate('/profile');
+  useEffect(() => {
+    if (currentUser) {
+      navigate('/');
+    }
+  }, [navigate, currentUser]);
 
   const resetFormFields = () => {
     setFormFields(defaultFormFields);
@@ -33,7 +36,6 @@ const SignInForm = () => {
 
   const signInWithGoogle = async () => {
     dispatch(googleSignInStart());
-    // navigate('/profile');
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -42,18 +44,8 @@ const SignInForm = () => {
     try {
       dispatch(emailSignInStart(email, password));
       resetFormFields();
-      // navigate('/profile');
     } catch (error) {
-      switch ((error as AuthError).code) {
-        case AuthErrorCodes.INVALID_PASSWORD:
-          alert('incorrect password for email');
-          break;
-        case AuthErrorCodes.USER_DELETED:
-          alert('no user associated with this email');
-          break;
-        default:
-          console.log(error);
-      }
+      console.log(error);
     }
   };
 

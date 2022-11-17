@@ -61,6 +61,34 @@ export type SignOutFailed = ActionWithPayload<
   Error
 >;
 
+// export type UpdateUserEmailStart = ActionWithPayload<
+//   USER_ACTION_TYPES.UPDATE_EMAIL_START,
+//   { email: string }
+// >;
+
+// export type UpdateUserEmailSuccess = ActionWithPayload<
+//   USER_ACTION_TYPES.UPDATE_EMAIL_SUCCESS,
+//   { email: string }
+// >;
+
+// export type UpdateUserEmailFailed = ActionWithPayload<
+//   USER_ACTION_TYPES.UPDATE_EMAIL_FAILED,
+//   Error
+// >;
+
+export type UpdateUserPasswordStart = ActionWithPayload<
+  USER_ACTION_TYPES.UPDATE_PASSWORD_START,
+  { password: string }
+>;
+
+export type UpdateUserPasswordSuccess =
+  Action<USER_ACTION_TYPES.UPDATE_PASSWORD_SUCCESS>;
+
+export type UpdateUserPasswordFailed = ActionWithPayload<
+  USER_ACTION_TYPES.UPDATE_PASSWORD_FAILED,
+  Error
+>;
+
 export const checkUserSession = withMatcher(
   (): CheckUserSession => createAction(USER_ACTION_TYPES.CHECK_USER_SESSION)
 );
@@ -119,4 +147,34 @@ export const signOutSuccess = withMatcher(
 export const signOutFailed = withMatcher(
   (error: Error): SignOutFailed =>
     createAction(USER_ACTION_TYPES.SIGN_OUT_FAILED, error)
+);
+
+// export const updateUserEmailStart = withMatcher(
+//   (email: string): UpdateUserEmailStart =>
+//     createAction(USER_ACTION_TYPES.UPDATE_EMAIL_START, { email })
+// );
+
+// export const updateUserEmailSuccess = withMatcher(
+//   (email: string): UpdateUserEmailSuccess =>
+//     createAction(USER_ACTION_TYPES.UPDATE_EMAIL_SUCCESS, { email })
+// );
+
+// export const updateUserEmailFailed = withMatcher(
+//   (error: Error): UpdateUserEmailFailed =>
+//     createAction(USER_ACTION_TYPES.UPDATE_EMAIL_FAILED, error)
+// );
+
+export const updateUserPasswordStart = withMatcher(
+  (password: string): UpdateUserPasswordStart =>
+    createAction(USER_ACTION_TYPES.UPDATE_PASSWORD_START, { password })
+);
+
+export const updateUserPasswordSuccess = withMatcher(
+  (): UpdateUserPasswordSuccess =>
+    createAction(USER_ACTION_TYPES.UPDATE_PASSWORD_SUCCESS)
+);
+
+export const updateUserPasswordFailed = withMatcher(
+  (error: Error): UpdateUserPasswordFailed =>
+    createAction(USER_ACTION_TYPES.UPDATE_PASSWORD_FAILED, error)
 );

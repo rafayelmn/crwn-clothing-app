@@ -1,14 +1,13 @@
-import { useState, FormEvent, ChangeEvent } from 'react';
-import { AuthError, AuthErrorCodes } from 'firebase/auth';
-import { useDispatch } from 'react-redux';
+import { useState, FormEvent, ChangeEvent, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import FormInput from '../form-input/form-input.component';
 import Button from '../button/button.component';
 
 import { SignUpContainer } from './sign-up-form.styles';
 import { signUpStart } from '../../store/user/user.action';
-import useAuth from '../../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { selectCurrentUser } from '../../store/user/user.selector';
 
 const defaultFormFields = {
   displayName: '',
@@ -21,10 +20,14 @@ const SignUpForm = () => {
   const [formFields, setFormFields] = useState(defaultFormFields);
   const { displayName, email, password, confirmPassword } = formFields;
   const dispatch = useDispatch();
-  const currentUser = useAuth();
   const navigate = useNavigate();
+  const currentUser = useSelector(selectCurrentUser);
 
-  if (currentUser) navigate('/profile');
+  useEffect(() => {
+    if (currentUser) {
+      navigate('/', { replace: true });
+    }
+  }, [navigate, currentUser]);
 
   const resetFormFields = () => {
     setFormFields(defaultFormFields);
@@ -41,13 +44,8 @@ const SignUpForm = () => {
     try {
       dispatch(signUpStart(email, password, displayName));
       resetFormFields();
-      // navigate('/profile');
     } catch (error) {
-      if ((error as AuthError).code === AuthErrorCodes.EMAIL_EXISTS) {
-        alert('Cannot create user, email already in use');
-      } else {
-        console.log('user creation encountered an error', error);
-      }
+      console.log(error);
     }
   };
 
