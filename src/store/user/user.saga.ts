@@ -13,9 +13,9 @@ import {
   EmailSignInStart,
   SignUpStart,
   SignUpSuccess,
-  // UpdateUserEmailStart,
-  // updateUserEmailSuccess,
-  // updateUserEmailFailed,
+  UpdateUserDocumentFieldStart,
+  updateUserDocumentFieldSuccess,
+  updateUserDocumentFieldFailed,
   UpdateUserPasswordStart,
   updateUserPasswordSuccess,
   updateUserPasswordFailed,
@@ -29,7 +29,7 @@ import {
   createAuthUserWithEmailAndPassword,
   signOutUser,
   AdditionalInformation,
-  // updateUserEmail,
+  updateUserDocumentField,
   updateUserPassword,
 } from '../../utils/firebase/firebase.utils';
 
@@ -141,27 +141,35 @@ export function* signInAfterSignUp({
   yield* call(getSnapshotFromUserAuth, user, additionalDetails);
 }
 
-// export function* updateCurrentUserEmail({
-//   payload: { email },
-// }: UpdateUserEmailStart) {
-//   try {
-//     const userAuth = yield* call(getCurrentUser);
-//     if (!userAuth) return;
-//     yield* call(updateUserEmail, userAuth, email);
-//     yield* put(updateUserEmailSuccess(email));
-//   } catch (error) {
-//     yield* put(updateUserEmailFailed(error as Error));
-//   }
-// }
+export function* updateCurrentUserDocumentField({
+  payload: { newData, newEmail, currentUserPassword },
+}: UpdateUserDocumentFieldStart) {
+  try {
+    const userAuth = yield* call(getCurrentUser);
+    if (!userAuth) return;
+    yield* call(
+      updateUserDocumentField,
+      userAuth,
+      newData,
+      newEmail,
+      currentUserPassword
+    );
+    yield* put(updateUserDocumentFieldSuccess());
+    yield* call(getSnapshotFromUserAuth, userAuth);
+  } catch (error) {
+    yield* put(updateUserDocumentFieldFailed(error as Error));
+  }
+}
 
 export function* updateCurrentUserPassword({
-  payload: { password },
+  payload: { newPassword, currentUserPassword },
 }: UpdateUserPasswordStart) {
   try {
     const userAuth = yield* call(getCurrentUser);
     if (!userAuth) return;
-    yield* call(updateUserPassword, userAuth, password);
+    yield* call(updateUserPassword, userAuth, newPassword, currentUserPassword);
     yield* put(updateUserPasswordSuccess());
+    yield* call(getSnapshotFromUserAuth, userAuth);
   } catch (error) {
     yield* put(updateUserPasswordFailed(error as Error));
   }
@@ -191,14 +199,14 @@ export function* onSignOutStart() {
   yield* takeLatest(USER_ACTION_TYPES.SIGN_OUT_START, signOut);
 }
 
-// export function* onUpdateEmailStart() {
-//   yield* takeLatest(
-//     USER_ACTION_TYPES.UPDATE_EMAIL_START,
-//     updateCurrentUserEmail
-//   );
-// }
+export function* onUpdateUserDocumentFieldStart() {
+  yield* takeLatest(
+    USER_ACTION_TYPES.UPDATE_USER_DOCUMENT_FIELD_START,
+    updateCurrentUserDocumentField
+  );
+}
 
-export function* onUpdatePasswordStart() {
+export function* onUpdateUserPasswordStart() {
   yield* takeLatest(
     USER_ACTION_TYPES.UPDATE_PASSWORD_START,
     updateCurrentUserPassword
@@ -213,7 +221,7 @@ export function* userSagas() {
     call(onSignUpStart),
     call(onSignUpSuccess),
     call(onSignOutStart),
-    // call(onUpdateEmailStart),
-    call(onUpdatePasswordStart),
+    call(onUpdateUserDocumentFieldStart),
+    call(onUpdateUserPasswordStart),
   ]);
 }

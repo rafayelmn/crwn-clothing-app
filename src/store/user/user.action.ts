@@ -1,3 +1,4 @@
+import { UpdateData, DocumentData } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 
 import { USER_ACTION_TYPES } from './user.types';
@@ -61,24 +62,26 @@ export type SignOutFailed = ActionWithPayload<
   Error
 >;
 
-// export type UpdateUserEmailStart = ActionWithPayload<
-//   USER_ACTION_TYPES.UPDATE_EMAIL_START,
-//   { email: string }
-// >;
+export type UpdateUserDocumentFieldStart = ActionWithPayload<
+  USER_ACTION_TYPES.UPDATE_USER_DOCUMENT_FIELD_START,
+  {
+    newData: UpdateData<DocumentData>;
+    newEmail: string;
+    currentUserPassword: string;
+  }
+>;
 
-// export type UpdateUserEmailSuccess = ActionWithPayload<
-//   USER_ACTION_TYPES.UPDATE_EMAIL_SUCCESS,
-//   { email: string }
-// >;
+export type UpdateUserDocumentFieldSuccess =
+  Action<USER_ACTION_TYPES.UPDATE_USER_DOCUMENT_FIELD_SUCCESS>;
 
-// export type UpdateUserEmailFailed = ActionWithPayload<
-//   USER_ACTION_TYPES.UPDATE_EMAIL_FAILED,
-//   Error
-// >;
+export type UpdateUserDocumentFieldFailed = ActionWithPayload<
+  USER_ACTION_TYPES.UPDATE_USER_DOCUMENT_FIELD_FAILED,
+  Error
+>;
 
 export type UpdateUserPasswordStart = ActionWithPayload<
   USER_ACTION_TYPES.UPDATE_PASSWORD_START,
-  { password: string }
+  { newPassword: string; currentUserPassword: string }
 >;
 
 export type UpdateUserPasswordSuccess =
@@ -149,24 +152,35 @@ export const signOutFailed = withMatcher(
     createAction(USER_ACTION_TYPES.SIGN_OUT_FAILED, error)
 );
 
-// export const updateUserEmailStart = withMatcher(
-//   (email: string): UpdateUserEmailStart =>
-//     createAction(USER_ACTION_TYPES.UPDATE_EMAIL_START, { email })
-// );
+export const updateUserDocumentFieldStart = withMatcher(
+  (
+    newData: UpdateData<DocumentData>,
+    newEmail: string,
+    currentUserPassword: string
+  ): UpdateUserDocumentFieldStart =>
+    createAction(USER_ACTION_TYPES.UPDATE_USER_DOCUMENT_FIELD_START, {
+      newData,
+      newEmail,
+      currentUserPassword,
+    })
+);
 
-// export const updateUserEmailSuccess = withMatcher(
-//   (email: string): UpdateUserEmailSuccess =>
-//     createAction(USER_ACTION_TYPES.UPDATE_EMAIL_SUCCESS, { email })
-// );
+export const updateUserDocumentFieldSuccess = withMatcher(
+  (): UpdateUserDocumentFieldSuccess =>
+    createAction(USER_ACTION_TYPES.UPDATE_USER_DOCUMENT_FIELD_SUCCESS)
+);
 
-// export const updateUserEmailFailed = withMatcher(
-//   (error: Error): UpdateUserEmailFailed =>
-//     createAction(USER_ACTION_TYPES.UPDATE_EMAIL_FAILED, error)
-// );
+export const updateUserDocumentFieldFailed = withMatcher(
+  (error: Error): UpdateUserDocumentFieldFailed =>
+    createAction(USER_ACTION_TYPES.UPDATE_USER_DOCUMENT_FIELD_FAILED, error)
+);
 
 export const updateUserPasswordStart = withMatcher(
-  (password: string): UpdateUserPasswordStart =>
-    createAction(USER_ACTION_TYPES.UPDATE_PASSWORD_START, { password })
+  (newPassword: string, currentUserPassword: string): UpdateUserPasswordStart =>
+    createAction(USER_ACTION_TYPES.UPDATE_PASSWORD_START, {
+      newPassword,
+      currentUserPassword,
+    })
 );
 
 export const updateUserPasswordSuccess = withMatcher(

@@ -10,13 +10,14 @@ import { SignInContainer, ButtonsContainer } from './profile.styles';
 import { selectCurrentUser } from '../../store/user/user.selector';
 import { useNavigate } from 'react-router-dom';
 import {
-  // updateUserEmailStart,
+  updateUserDocumentFieldStart,
   updateUserPasswordStart,
 } from '../../store/user/user.action';
 
 const defaultFormFields = {
   displayName: '',
   email: '',
+  currentUserRequiredPassword: '',
   password: '',
   confirmPassword: '',
 };
@@ -30,12 +31,19 @@ const SignInForm = () => {
   const formFieldsWithCurrentUserInfo = {
     displayName: currentUserDisplayName,
     email: currentUserEmail,
+    currentUserRequiredPassword: '',
     password: '',
     confirmPassword: '',
   };
 
   const [formFields, setFormFields] = useState(formFieldsWithCurrentUserInfo);
-  const { displayName, email, password, confirmPassword } = formFields;
+  const {
+    displayName,
+    email,
+    currentUserRequiredPassword,
+    password,
+    confirmPassword,
+  } = formFields;
   const navigate = useNavigate();
 
   const resetFormFields = () => {
@@ -50,12 +58,25 @@ const SignInForm = () => {
       return;
     }
 
-    // if (formFields.email !== currentUserEmail) {
-    //   dispatch(updateUserEmailStart(formFields.email));
-    // }
+    if (
+      formFields.email !== currentUserEmail ||
+      formFields.displayName !== currentUserDisplayName
+    ) {
+      const newData = {
+        email: formFields.email,
+        displayName: formFields.displayName,
+      };
+      const newEmail = formFields.email;
+      const currentUserPassword = formFields.currentUserRequiredPassword;
+      dispatch(
+        updateUserDocumentFieldStart(newData, newEmail, currentUserPassword)
+      );
+    }
 
     if (formFields.password !== formFieldsWithCurrentUserInfo.password) {
-      dispatch(updateUserPasswordStart(formFields.password));
+      const currentUserPassword = formFields.currentUserRequiredPassword;
+      const newPassword = formFields.password;
+      dispatch(updateUserPasswordStart(newPassword, currentUserPassword));
     }
 
     try {
@@ -100,7 +121,16 @@ const SignInForm = () => {
         />
 
         <FormInput
-          label='Password: Leave Blank To Keep The Same'
+          label='Password*'
+          type='password'
+          onChange={handleChange}
+          name='currentUserRequiredPassword'
+          value={currentUserRequiredPassword}
+          required
+        />
+
+        <FormInput
+          label='New Password: Leave Blank To Keep The Same'
           type='password'
           onChange={handleChange}
           name='password'
@@ -108,7 +138,7 @@ const SignInForm = () => {
         />
 
         <FormInput
-          label='Confirm Password: Leave Blank To Keep The Same'
+          label='Confirm New Password: Leave Blank To Keep The Same'
           type='password'
           onChange={handleChange}
           name='confirmPassword'

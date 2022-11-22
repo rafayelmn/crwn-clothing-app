@@ -6,10 +6,8 @@ import {
   signOutFailed,
   signOutSuccess,
   signInSuccess,
-  updateUserPasswordSuccess,
+  updateUserDocumentFieldFailed,
   updateUserPasswordFailed,
-  // updateUserEmailFailed,
-  // updateUserEmailSuccess,
 } from './user.action';
 
 import { UserData } from '../../utils/firebase/firebase.utils';
@@ -35,20 +33,12 @@ export const userReducer = (state = INITIAL_STATE, action: AnyAction) => {
     return { ...state, currentUser: null };
   }
 
-  // if (updateUserEmailSuccess.match(action)) {
-  //   return { ...state };
-  // }
-
-  if (updateUserPasswordSuccess.match(action)) {
-    return { ...state };
-  }
-
   if (
     signInFailed.match(action) ||
     signUpFailed.match(action) ||
     signOutFailed.match(action) ||
-    // updateUserEmailFailed.match(action) ||
-    updateUserPasswordFailed.match(action)
+    updateUserPasswordFailed.match(action) ||
+    updateUserDocumentFieldFailed.match(action)
   ) {
     return { ...state, error: action.payload };
   }
